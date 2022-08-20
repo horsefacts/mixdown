@@ -9,7 +9,7 @@ type ImageMimeType =
   | "image/svg+xml"
   | "image/webp";
 
-type AudioMimeType = "audio/wav" | "audio/mpeg" | "audio/ogg";
+export type AudioMimeType = "audio/wav" | "audio/mpeg" | "audio/ogg";
 
 interface PublicationMetadataMedia {
   item: string; // URL
@@ -27,23 +27,23 @@ export enum PublicationContentWarning {
 }
 
 export interface PostMetadataParams {
-  description?: string;
+  description: string;
   tags?: string[];
   contentWarning?: PublicationContentWarning;
   name: string;
-  image?: string; // URL
+  image?: string;
   imageMimeType?: ImageMimeType;
   media?: PublicationMetadataMedia[];
 }
 
-export const postMetadata = (params: PostMetadataParams) => {
+export const postMetadata = (params: PostMetadataParams): TrackPostMetadata => {
   return {
     version: "2.0.0",
     metadata_id: randomUUID(),
-    description: params.description || null,
+    description: params.description,
     locale: "en-US",
     tags: params.tags || null,
-    contentWarning: params.contentWarning,
+    contentWarning: params.contentWarning || null,
     mainContentFocus: "AUDIO",
     name: params.name,
     attributes: [],
@@ -53,3 +53,19 @@ export const postMetadata = (params: PostMetadataParams) => {
     appId: "Multitrack",
   };
 };
+
+export interface TrackPostMetadata {
+  version: "2.0.0";
+  metadata_id: string;
+  description: string;
+  locale: "en-US";
+  tags: string[] | null;
+  contentWarning: PublicationContentWarning | null;
+  mainContentFocus: "AUDIO";
+  name: string;
+  attributes: [];
+  image: string | null;
+  imageMimeType: ImageMimeType | null;
+  media: PublicationMetadataMedia[] | null;
+  appId: "Multitrack";
+}

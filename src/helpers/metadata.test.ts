@@ -1,36 +1,45 @@
-import { MimeType, postMetadata, PublicationContentWarning } from './metadata';
+import { File } from 'nft.storage';
+
+import { MimeType, postMetadata, PostMetadataParams, PublicationContentWarning } from './metadata';
 
 const UUID_REGEX =
   /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
 
+const postParams: PostMetadataParams = {
+  name: "My post name",
+  description: "My description",
+  // image: "www.my-site.com/image.png",
+  // imageMimeType: "image/png",
+};
+
 describe("metadata helpers", () => {
   describe("postMetadata", () => {
     it("includes metatada version", () => {
-      const { version } = postMetadata({ name: "My name" });
+      const { version } = postMetadata(postParams);
       expect(version).toBe("2.0.0");
     });
 
     it("adds a UUID metadata_id", () => {
-      const { metadata_id } = postMetadata({ name: "My name" });
+      const { metadata_id } = postMetadata(postParams);
       expect(metadata_id).toMatch(UUID_REGEX);
     });
 
     it("Adds a description", () => {
       const { description } = postMetadata({
-        name: "My name",
+        ...postParams,
         description: "My description",
       });
       expect(description).toBe("My description");
     });
 
     it("Adds english locale", () => {
-      const { locale } = postMetadata({ name: "My name" });
+      const { locale } = postMetadata(postParams);
       expect(locale).toBe("en-US");
     });
 
     it("Adds tags", () => {
       const { tags } = postMetadata({
-        name: "My name",
+        ...postParams,
         tags: ["tag1", "tag2", "tag3"],
       });
       expect(tags).toEqual(["tag1", "tag2", "tag3"]);
@@ -38,36 +47,30 @@ describe("metadata helpers", () => {
 
     it("Adds content warning", () => {
       const { contentWarning } = postMetadata({
-        name: "My name",
+        ...postParams,
         contentWarning: PublicationContentWarning.SPOILER,
       });
       expect(contentWarning).toEqual("SPOILER");
     });
 
     it("Adds publication main content focus to Audio", () => {
-      const { mainContentFocus } = postMetadata({
-        name: "My name",
-      });
+      const { mainContentFocus } = postMetadata(postParams);
       expect(mainContentFocus).toBe("AUDIO");
     });
 
     it("Adds name", () => {
-      const { name } = postMetadata({
-        name: "My post name",
-      });
+      const { name } = postMetadata(postParams);
       expect(name).toEqual("My post name");
     });
 
     it("Adds empty attributes", () => {
-      const { attributes } = postMetadata({
-        name: "My post name",
-      });
+      const { attributes } = postMetadata(postParams);
       expect(attributes).toEqual([]);
     });
 
     it("Adds image", () => {
       const { image } = postMetadata({
-        name: "Some name",
+        ...postParams,
         image: "www.my-site.com/image.png",
       });
       expect(image).toEqual("www.my-site.com/image.png");
@@ -75,7 +78,7 @@ describe("metadata helpers", () => {
 
     it("Adds image mime type", () => {
       const { imageMimeType } = postMetadata({
-        name: "Some name",
+        ...postParams,
         imageMimeType: "image/png",
       });
       expect(imageMimeType).toEqual("image/png");
@@ -83,7 +86,7 @@ describe("metadata helpers", () => {
 
     it("Adds media", () => {
       const { media } = postMetadata({
-        name: "Some name",
+        ...postParams,
         media: [
           {
             item: "www.my-host.com/sound.wav",
@@ -110,9 +113,7 @@ describe("metadata helpers", () => {
     });
 
     it("Adds app ID", () => {
-      const { appId } = postMetadata({
-        name: "Some name",
-      });
+      const { appId } = postMetadata(postParams);
       expect(appId).toEqual("Multitrack");
     });
   });
