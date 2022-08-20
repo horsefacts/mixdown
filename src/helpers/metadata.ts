@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 type ImageMimeType =
   | "image/gif"
@@ -9,7 +9,7 @@ type ImageMimeType =
   | "image/svg+xml"
   | "image/webp";
 
-export type AudioMimeType = "audio/wav" | "audio/mpeg" | "audio/ogg";
+export type AudioMimeType = "audio/wav" | "audio/mpeg" | "audio/ogg" | string;
 
 interface PublicationMetadataMedia {
   item: string; // URL
@@ -39,7 +39,7 @@ export interface PostMetadataParams {
 export const postMetadata = (params: PostMetadataParams): TrackPostMetadata => {
   return {
     version: "2.0.0",
-    metadata_id: randomUUID(),
+    metadata_id: uuidv4(),
     description: params.description,
     locale: "en-US",
     tags: params.tags || null,
