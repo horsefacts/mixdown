@@ -1,62 +1,30 @@
-import "./polyfills";
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import "@rainbow-me/rainbowkit/styles.css";
+import './polyfills';
+import './index.css';
+import '@rainbow-me/rainbowkit/styles.css';
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { publicProvider } from 'wagmi/providers/public';
+
 import {
-  connectorsForWallets,
-  wallet,
-  RainbowKitProvider,
-  midnightTheme,
-} from "@rainbow-me/rainbowkit";
-import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { publicProvider } from "wagmi/providers/public";
+    connectorsForWallets, midnightTheme, RainbowKitProvider, wallet
+} from '@rainbow-me/rainbowkit';
+
+import App from './App';
 
 const { chains, provider } = configureChains(
+  [chain.hardhat, chain.polygon, chain.polygonMumbai],
   [
-    chain.mainnet,
-    chain.goerli,
-    chain.optimism,
-    chain.optimismKovan,
-    chain.polygon,
-    chain.polygonMumbai,
-    chain.arbitrum,
-  ],
-  [
-    jsonRpcProvider({
-      rpc: () => {
-        return {
-          http: "https://rpc.ankr.com/eth",
-        };
-      },
-    }),
     publicProvider(),
     jsonRpcProvider({
       rpc: () => {
         return {
-          http: "https://rpc.ankr.com/eth_goerli",
+          http: "http://localhost:8545",
         };
       },
     }),
-    publicProvider(),
-    jsonRpcProvider({
-      rpc: () => {
-        return {
-          http: "https://rpc.ankr.com/optimism",
-        };
-      },
-    }),
-    publicProvider(),
-    jsonRpcProvider({
-      rpc: () => {
-        return {
-          http: "https://rpc.ankr.com/optimism_testnet",
-        };
-      },
-    }),
-    publicProvider(),
     jsonRpcProvider({
       rpc: () => {
         return {
@@ -64,15 +32,13 @@ const { chains, provider } = configureChains(
         };
       },
     }),
-    publicProvider(),
     jsonRpcProvider({
       rpc: () => {
         return {
-          http: "https://rpc.ankr.com/arbitrum",
+          http: "https://rpc.ankr.com/polygon",
         };
       },
     }),
-    publicProvider(),
   ]
 );
 
@@ -82,7 +48,7 @@ const connectors = connectorsForWallets([
     wallets: [
       wallet.metaMask({ chains, shimDisconnect: true }),
       wallet.walletConnect({ chains }),
-      wallet.coinbase({ appName: "Vite React RainbowKit Starter App", chains }),
+      wallet.coinbase({ appName: "Multitrack", chains }),
       wallet.rainbow({ chains }),
     ],
   },

@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
 import { Blob, CIDString, File, NFTStorage, RequestOptions } from 'nft.storage';
-import { Token, TokenInput } from 'nft.storage/dist/src/lib/interface';
 
 import { NFT_STORAGE_TOKEN } from '../config/storage';
 import { AudioMimeType, TrackPostMetadata } from './metadata';
@@ -10,10 +9,6 @@ interface StorageService {
     blob: Blob,
     options?: RequestOptions | undefined
   ) => Promise<CIDString>;
-  store: (
-    token: TokenInput,
-    options?: RequestOptions | undefined
-  ) => Promise<Token<TokenInput>>;
 }
 
 export class Storage {
@@ -38,12 +33,11 @@ export class Storage {
   // 5. upload metadata JSON, get back URL
   // 6. call lens hub contract with metadata URL
   async uploadMetadata(metadata: TrackPostMetadata) {
-    // ?
     const data = Buffer.from(JSON.stringify(metadata));
     const metadataFile = new File([data], metadata.metadata_id, {
       type: "application/json",
     });
-    // const cid = await this.storage.storeBlob(metadataFile);
-    this.storage.storeBlob(metadataFile);
+    const cid = await this.storage.storeBlob(metadataFile);
+    return cid;
   }
 }
