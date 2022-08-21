@@ -17,20 +17,13 @@ import App from './App';
 import { apolloClient } from './gql/client';
 
 const { chains, provider } = configureChains(
-  [chain.polygonMumbai, chain.polygon],
+  [chain.polygonMumbai],
   [
     publicProvider(),
     jsonRpcProvider({
       rpc: () => {
         return {
           http: "https://rpc.ankr.com/polygon_mumbai",
-        };
-      },
-    }),
-    jsonRpcProvider({
-      rpc: () => {
-        return {
-          http: "https://rpc.ankr.com/polygon",
         };
       },
     }),
