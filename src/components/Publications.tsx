@@ -19,7 +19,7 @@ type onSelectFunc = (
 ) => void;
 
 interface PublicationsProps {
-  profileId?: string;
+  profileIds: string[];
   onSelect: onSelectFunc;
 }
 
@@ -47,6 +47,8 @@ interface Publication {
   id: string;
   metadata: Metadata;
   profile: Profile;
+  name: String;
+  description: String;
 }
 
 interface PublicationProps {
@@ -137,7 +139,7 @@ const Publication = ({ id, profile, metadata, onSelect }: PublicationProps) => {
 interface PubNode {
   root: Publication;
   children: PubNode[];
-  onSelect: (publicationId: string, contentCid: string) => void;
+  onSelect: onSelectFunc;
 }
 
 function addLeaf(nodes: PubNode[], element: Publication) {
@@ -161,29 +163,37 @@ function addLeaf(nodes: PubNode[], element: Publication) {
   return false;
 }
 
-const Publications = ({ profileId, onSelect }: PublicationsProps) => {
-  const {
-    loading,
-    error,
-    data: publicationData,
-  } = useGetPublications(profileId);
-  if (publicationData && publicationData.publications) {
-    const posts = publicationData.publications.items.filter(
+const Publications = ({ profileIds, onSelect }: PublicationsProps) => {
+  const publications: Publication[] = profileIds.map((id) => {
+    const { loading, error, data } = useGetPublications(id);
+    if (data && data.publications) {
+      return data.publications.items;
+    }
+    return [];
+  }).flat();
+
+  if (publications.length > 0) {
+    const posts = publications.filter(
       (pub: Publication) => {
         return pub.__typename == "Post";
       }
     );
-    const comments = publicationData.publications.items
+    const comments = publications
       .filter((pub: Publication) => {
         return pub.__typename == "Comment";
       })
       .sort((a: Publication, b: Publication) => {
+        const idA = BigNumber.from(a.id.split("-")[0]);
+        const idB = BigNumber.from(b.id.split("-")[0]);
+        return idA.sub(idB).toNumber();
+      })
+      .sort((a: Publication, b: Publication) => {
         const idA = BigNumber.from(a.id.split("-")[1]);
         const idB = BigNumber.from(b.id.split("-")[1]);
-        return idA.sub(idB);
+        return idA.sub(idB).toNumber();
       });
 
-    console.log("Posts", posts);
+
     const roots = posts.map((pub: Publication) => {
       return {
         root: pub,

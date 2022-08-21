@@ -1,7 +1,7 @@
 import { BigNumberish, BytesLike, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import LensHubABI from '../config/abis/LensHub.json';
@@ -68,12 +68,24 @@ const CreatePost = () => {
     useState<PostDataStruct>(emptyStruct);
   const [commentDataStruct, setCommentDataStruct] =
     useState<CommentDataStruct>();
-  const { data: profileData } = useGetProfiles();
+  const { data: profileData, loading: profilesLoading } = useGetProfiles();
   const profileId = profileData?.profiles.items[0]?.id;
-  const { data: followingData } = useGetFollowing();
-  if (followingData && followingData.following.items) {
-    console.log("Following.following.items", followingData.following.items);
-  }
+  const { data: followingData, loading: followingLoading } = useGetFollowing();
+  const [profileIds, setProfileIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (profileData && profileData.profiles) {
+      const ids = profileIds.concat(profileData.profiles.items.map((item: IProfile) => item.id))
+      setProfileIds(ids)
+    }
+  }, [profileData])
+
+  useEffect(() => {
+    if (followingData && followingData.following) {
+      const ids = profileIds.concat(followingData.following.items.map(({ profile }: { profile: IProfile }) => profile.id))
+      setProfileIds(ids)
+    }
+  }, [followingData])
 
   const { lensHub, freeCollectModule } = useContractAddresses();
   const { config: postConfig } = usePrepareContractWrite({
@@ -382,25 +394,9 @@ const CreatePost = () => {
         </div>
       </div>
       <div className="w-3/4 h-screen overflow-auto">
-        <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
-          My mixdowns
-        </div>
-        <Publications profileId={profileId} onSelect={onSelectPublication} />
-        {followingData?.following?.items.map(
-          ({ profile }: { profile: IProfile }) => {
-            return (
-              <>
-                <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
-                  {profile.name ? profile.name + " - " : ""}@{profile.handle}
-                </div>
-                <Publications
-                  profileId={profile.id}
-                  onSelect={onSelectPublication}
-                />
-              </>
-            );
-          }
-        )}
+        {!profilesLoading && !followingLoading &&
+          <Publications profileIds={profileIds} onSelect={onSelectPublication} />
+        }
       </div>
     </div>
   );
