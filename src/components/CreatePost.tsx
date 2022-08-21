@@ -100,18 +100,8 @@ const CreatePost = () => {
     functionName: "comment",
     args: [commentDataStruct],
   });
-  const { write: createPost } = useContractWrite({
-    ...postConfig,
-    onSuccess(data) {
-      setProgressMessage(undefined);
-    },
-  });
-  const { write: createComment } = useContractWrite({
-    ...commentConfig,
-    onSuccess(data) {
-      setProgressMessage(undefined);
-    },
-  });
+  const { write: createPost } = useContractWrite(postConfig);
+  const { write: createComment } = useContractWrite(commentConfig);
 
   const formik = useFormik({
     initialValues: {
@@ -165,9 +155,7 @@ const CreatePost = () => {
               };
               setPostDataStruct(postData);
               setProgressMessage("Creating Lens post...");
-              setTimeout(() => {
-                createPost?.();
-              }, 300);
+              createPost?.();
             } else if (
               selectedPostId &&
               selectedPostProfileId &&
@@ -234,9 +222,7 @@ const CreatePost = () => {
               };
               setCommentDataStruct(commentData);
               setProgressMessage("Creating Lens post...");
-              setTimeout(() => {
-                createComment?.();
-              }, 300);
+              createComment?.();
             }
           }
         };
