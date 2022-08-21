@@ -118,9 +118,15 @@ const Publication = ({ id, profile, metadata, onSelect }: PublicationProps) => {
           </div>
         )}
         <div className="flex flex-row">
-          <Collect publicationId={id}/>
-          <div className="text-right flex-grow">
-            @{profile.handle}
+          <Collect publicationId={id} />
+          <div className="flex-grow text-right">
+            <a
+              href={`https://testnet.lenster.xyz/u/${profile.handle}`}
+              target="_blank"
+              rel="noreferrerer"
+            >
+              @{profile.handle}
+            </a>
           </div>
         </div>
       </div>
@@ -190,7 +196,8 @@ const Publications = ({ profileId, onSelect }: PublicationsProps) => {
       if (!addLeaf(roots, comments[i])) {
         console.log(
           "There doesn't seem to be a parent for comment ",
-          comments[i].id
+          comments[i].id,
+          comments[i]
         );
       }
     }

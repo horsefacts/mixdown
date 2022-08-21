@@ -125,7 +125,7 @@ const CreatePost = () => {
                   {
                     item: getGatewayURI(trackCid),
                     type: file.type,
-                    altTag: "Multitrack track",
+                    altTag: "Mixdown track",
                   },
                 ],
               });
@@ -178,7 +178,7 @@ const CreatePost = () => {
                   {
                     item: getGatewayURI(mixCid),
                     type: file.type,
-                    altTag: "Multitrack mix",
+                    altTag: "Mixdown mix",
                     cover: getGatewayURI(
                       "bafkreiaclhymdiwrhnxgs3eeqf4l6y5hhrs5wky6slovtewgraxhxmhpya"
                     ),
@@ -186,7 +186,7 @@ const CreatePost = () => {
                   {
                     item: getGatewayURI(trackCid),
                     type: file.type,
-                    altTag: "Multitrack track",
+                    altTag: "Mixdown track",
                     cover: getGatewayURI(
                       "bafkreifrrtdytfpgstetmugs7yu3zrwh5p6bvp2q35e5av3ixyoknzpzlq"
                     ),
@@ -243,7 +243,7 @@ const CreatePost = () => {
         <div className="flex flex-col w-1/4 h-screen shadow bg-gradient-to-r from-gray-300 to-gray-100">
           <div>
             <div className="p-8 text-center">
-              <h1 className="text-4xl font-extrabold">🎛 Multitrack</h1>
+              <h1 className="text-4xl font-extrabold">🎛 Mixdown</h1>
             </div>
           </div>
         </div>
@@ -271,7 +271,7 @@ const CreatePost = () => {
       <div className="flex flex-col w-1/4 h-screen shadow bg-gradient-to-r from-gray-300 to-gray-100">
         <div>
           <div className="p-8 text-center">
-            <h1 className="text-4xl font-extrabold">🎛 Multitrack</h1>
+            <h1 className="text-4xl font-extrabold">🎛 Mixdown</h1>
           </div>
           <form
             className="flex flex-col px-16 m-auto space-y-4"
@@ -383,7 +383,7 @@ const CreatePost = () => {
       </div>
       <div className="w-3/4 h-screen overflow-auto">
         <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
-          My multitracks
+          My mixdowns
         </div>
         <Publications profileId={profileId} onSelect={onSelectPublication} />
         {followingData?.following?.items.map(
