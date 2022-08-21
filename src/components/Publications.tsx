@@ -93,7 +93,7 @@ const Publication = ({ id, metadata, onSelect }: PublicationProps) => {
 
   return (
     <div
-      className={`p-4 ${backgroundStyle}`}
+      className={`w-[400px] h-[350px] p-8 ${backgroundStyle} shadow-lg mx-2 my-2 rounded-sm`}
       onClick={() => onSelect && onSelect(id, metadata.name, squashUrl)}
     >
       <h2 className="text-xl font-bold">{metadata.name}</h2>
@@ -182,7 +182,7 @@ const Publications = ({ profileId, onSelect }: PublicationsProps) => {
     }
 
     return (
-      <div className="h-screen overflow-auto">
+      <div>
         {roots.map(({ root, children, onSelect }: PubNode) => {
           return (
             <PublicationNode

@@ -6,6 +6,7 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import LensHubABI from '../config/abis/LensHub.json';
 import { useContractAddresses } from '../config/contracts';
+import { useGetFollowing } from '../gql/following';
 import { useGetProfiles } from '../gql/profiles';
 import { mixTracks } from '../helpers/audio';
 import { postMetadata } from '../helpers/metadata';
@@ -48,6 +49,12 @@ interface FormValues {
   file?: File;
 }
 
+interface IProfile {
+  id: string;
+  name: string | null;
+  handle: string;
+}
+
 const CreatePost = () => {
   const [fileObjectURI, setFileObjectURI] = useState<string>();
   const [selectedPostId, setSelectedPostId] = useState<string>();
@@ -63,6 +70,10 @@ const CreatePost = () => {
     useState<CommentDataStruct>();
   const { data: profileData } = useGetProfiles();
   const profileId = profileData?.profiles.items[0].id;
+  const { data: followingData } = useGetFollowing();
+  if (followingData && followingData.following.items) {
+    console.log("Following.following.items", followingData.following.items);
+  }
 
   const { lensHub, freeCollectModule } = useContractAddresses();
   const { config: postConfig } = usePrepareContractWrite({
@@ -107,14 +118,14 @@ const CreatePost = () => {
                 name,
                 description,
                 image: getGatewayURI(
-                  "bafkreiaclhymdiwrhnxgs3eeqf4l6y5hhrs5wky6slovtewgraxhxmhpya"
+                  "bafkreifrrtdytfpgstetmugs7yu3zrwh5p6bvp2q35e5av3ixyoknzpzlq"
                 ),
                 imageMimeType: "image/png",
                 media: [
                   {
                     item: getGatewayURI(trackCid),
                     type: file.type,
-                    altTag: "Multitrack mix",
+                    altTag: "Multitrack track",
                   },
                 ],
               });
@@ -183,7 +194,7 @@ const CreatePost = () => {
                 ],
               });
 
-              setProgressMessage("Uploading token metadata...");
+              setProgressMessage("Uploading post metadata...");
               const postCid = await storage.uploadMetadata(metadata);
 
               const commentData: CommentDataStruct = {
@@ -228,7 +239,7 @@ const CreatePost = () => {
 
   return (
     <div className="flex flex-row">
-      <div className="flex flex-col h-screen bg-gradient-to-tr from-gray-300 to-gray-100">
+      <div className="flex flex-col w-1/4 h-screen shadow bg-gradient-to-r from-gray-300 to-gray-100">
         <div>
           <div className="p-8 text-center">
             <h1 className="text-4xl font-extrabold">🎛 Multitrack</h1>
@@ -238,10 +249,10 @@ const CreatePost = () => {
             onSubmit={formik.handleSubmit}
           >
             <div className="flex flex-col">
-              <div className="pb-4 text-xl">
+              <div className="pb-4 text-xl text-center">
                 {selectedName
                   ? "Add your touch to '" + selectedName + "'"
-                  : "Create a new base track anyone can remix."}
+                  : "Create a new base track."}
               </div>
               <label htmlFor="name" className="font-bold">
                 Name
@@ -299,17 +310,69 @@ const CreatePost = () => {
             </div>
             <div>
               <button
-                className="px-4 py-2 bg-gray-200 rounded shadow hover:bg-gray-400"
+                className="px-4 py-2 text-xl rounded shadow bg-violet-300 hover:bg-violet-400"
                 type="submit"
               >
                 {selectedPostId ? "Create Mix" : "Create Track"}
               </button>
+              {selectedPostId && (
+                <button
+                  className="px-4 py-2 ml-4 text-xl bg-gray-100 rounded shadow hover:bg-gray-200"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectPublication("-", "", "");
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </form>
         </div>
-        <div>{progressMessage}</div>
+        <div className="my-4 text-center">
+          {progressMessage ? (
+            <svg
+              className="inline w-4 h-4 mr-2 text-gray-200 animate-spin dark:text-gray-400 fill-violet-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+          ) : (
+            ""
+          )}
+          {progressMessage}
+        </div>
       </div>
-      <Publications profileId={profileId} onSelect={onSelectPublication} />
+      <div className="w-3/4 h-screen overflow-auto">
+        <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
+          My legacy
+        </div>
+        <Publications profileId={profileId} onSelect={onSelectPublication} />
+        {followingData?.following?.items.map(
+          ({ profile }: { profile: IProfile }) => {
+            return (
+              <>
+                <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
+                  {profile.name ? profile.name + " - " : ""}@{profile.handle}
+                </div>
+                <Publications
+                  profileId={profile.id}
+                  onSelect={onSelectPublication}
+                />
+              </>
+            );
+          }
+        )}
+      </div>
     </div>
   );
 };

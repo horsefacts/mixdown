@@ -10,7 +10,7 @@ const App = () => {
   const { isConnected } = useAccount();
   return (
     <div>
-      <div className="fixed top-4 right-4">
+      <div className="fixed z-10 top-4 right-4">
         <ConnectButton />
       </div>
       {isConnected && <CreatePost />}
