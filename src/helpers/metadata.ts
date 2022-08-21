@@ -15,7 +15,7 @@ interface PublicationMetadataMedia {
   item: string; // URL
   type?: AudioMimeType;
   altTag?: string;
-  // cover?: string; // URL
+  cover?: string; // URL
 }
 
 export type MimeType = ImageMimeType | AudioMimeType;

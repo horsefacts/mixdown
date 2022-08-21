@@ -1,6 +1,3 @@
-// this is showing you how you use it with react for example
-// if your using node or something else you can import using
-// @apollo/client/core!
 import { gql, useQuery } from '@apollo/client';
 
 const GET_PUBLICATIONS = `
@@ -278,6 +275,17 @@ const GET_PUBLICATIONS = `
     reaction(request: null)
     mirrors(by: null)
     hasCollectedByMe
+    commentOn {
+      ... on Post {
+        id
+      }
+      ... on Comment {
+        id
+      }
+      ... on Mirror {
+        id
+      }
+    }
   }
   fragment CommentFields on Comment {
     ...CommentBaseFields

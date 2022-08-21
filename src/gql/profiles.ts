@@ -2,8 +2,6 @@ import { useAccount } from 'wagmi';
 
 import { gql, useQuery } from '@apollo/client';
 
-import { apolloClient } from './client';
-
 const GET_PROFILES = `
   query($request: ProfileQueryRequest!) {
     profiles(request: $request) {
