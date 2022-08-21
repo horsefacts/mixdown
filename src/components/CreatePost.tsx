@@ -69,7 +69,7 @@ const CreatePost = () => {
   const [commentDataStruct, setCommentDataStruct] =
     useState<CommentDataStruct>();
   const { data: profileData } = useGetProfiles();
-  const profileId = profileData?.profiles.items[0].id;
+  const profileId = profileData?.profiles.items[0]?.id;
   const { data: followingData } = useGetFollowing();
   if (followingData && followingData.following.items) {
     console.log("Following.following.items", followingData.following.items);
@@ -237,6 +237,35 @@ const CreatePost = () => {
     return URL.createObjectURL(blob);
   };
 
+  if (!profileId) {
+    return (
+      <div className="flex flex-row">
+        <div className="flex flex-col w-1/4 h-screen shadow bg-gradient-to-r from-gray-300 to-gray-100">
+          <div>
+            <div className="p-8 text-center">
+              <h1 className="text-4xl font-extrabold">🎛 Multitrack</h1>
+            </div>
+          </div>
+        </div>
+        <div className="w-3/4 h-screen text-center">
+          <div className="mt-48 text-2xl">
+            <p>Looks like you don't have a Lens profile.</p>
+            <p>
+              You can create one by following{" "}
+              <a
+                href="https://docs.lens.xyz/docs/create-profile"
+                className="underline"
+              >
+                these instructions
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-row">
       <div className="flex flex-col w-1/4 h-screen shadow bg-gradient-to-r from-gray-300 to-gray-100">
@@ -354,7 +383,7 @@ const CreatePost = () => {
       </div>
       <div className="w-3/4 h-screen overflow-auto">
         <div className="p-4 mb-2 text-2xl border-b-2 border-violet-200 bold">
-          My legacy
+          My multitracks
         </div>
         <Publications profileId={profileId} onSelect={onSelectPublication} />
         {followingData?.following?.items.map(
