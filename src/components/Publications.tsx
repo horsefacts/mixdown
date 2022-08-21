@@ -164,20 +164,20 @@ function addLeaf(nodes: PubNode[], element: Publication) {
 }
 
 const Publications = ({ profileIds, onSelect }: PublicationsProps) => {
-  const publications: Publication[] = profileIds.map((id) => {
-    const { loading, error, data } = useGetPublications(id);
-    if (data && data.publications) {
-      return data.publications.items;
-    }
-    return [];
-  }).flat();
+  const publications: Publication[] = profileIds
+    .map((id) => {
+      const { loading, error, data } = useGetPublications(id);
+      if (data && data.publications) {
+        return data.publications.items;
+      }
+      return [];
+    })
+    .flat();
 
   if (publications.length > 0) {
-    const posts = publications.filter(
-      (pub: Publication) => {
-        return pub.__typename == "Post";
-      }
-    );
+    const posts = publications.filter((pub: Publication) => {
+      return pub.__typename == "Post";
+    });
     const comments = publications
       .filter((pub: Publication) => {
         return pub.__typename == "Comment";
@@ -193,7 +193,7 @@ const Publications = ({ profileIds, onSelect }: PublicationsProps) => {
         return idA.sub(idB).toNumber();
       });
 
-
+    console.log("Comments", comments);
     const roots = posts.map((pub: Publication) => {
       return {
         root: pub,
@@ -206,8 +206,7 @@ const Publications = ({ profileIds, onSelect }: PublicationsProps) => {
       if (!addLeaf(roots, comments[i])) {
         console.log(
           "There doesn't seem to be a parent for comment ",
-          comments[i].id,
-          comments[i]
+          comments[i].id
         );
       }
     }
