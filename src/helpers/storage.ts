@@ -11,6 +11,10 @@ interface StorageService {
   ) => Promise<CIDString>;
 }
 
+export const getGatewayURI = (cid: string) => {
+  return `https://ipfs.io/ipfs/${cid}`;
+};
+
 export class Storage {
   constructor(
     private readonly storage: StorageService = new NFTStorage({

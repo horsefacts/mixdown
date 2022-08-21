@@ -7,26 +7,21 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import LensHubABI from '../config/abis/LensHub.json';
 import { useContractAddresses } from '../config/contracts';
 import { useGetProfiles } from '../gql/profiles';
+import { mixTracks } from '../helpers/audio';
 import { postMetadata } from '../helpers/metadata';
 import { getGatewayURI, Storage } from '../helpers/storage';
 import Publications from './Publications';
 
-export type PostDataStruct = {
+export type CommentDataStruct = {
   profileId: BigNumberish;
   contentURI: string;
+  profileIdPointed: BigNumberish;
+  pubIdPointed: BigNumberish;
+  referenceModuleData: BytesLike;
   collectModule: string;
   collectModuleInitData: BytesLike;
   referenceModule: string;
   referenceModuleInitData: BytesLike;
-};
-
-const emptyStruct: PostDataStruct = {
-  profileId: "0x0",
-  contentURI: "",
-  collectModule: ethers.constants.AddressZero,
-  collectModuleInitData: [],
-  referenceModule: ethers.constants.AddressZero,
-  referenceModuleInitData: [],
 };
 
 interface FormValues {
@@ -35,20 +30,23 @@ interface FormValues {
   file?: File;
 }
 
-const CreatePost = () => {
+const CreateComment = () => {
+  const [selectedPostId, setSelectedPostId] = useState<string>();
+  const [selectedPostProfileId, setSelectedPostProfileId] = useState<string>();
   const [progressMessage, setProgressMessage] = useState<string>();
-  const [postDataStruct, setPostDataStruct] =
-    useState<PostDataStruct>(emptyStruct);
+  const [commentDataStruct, setCommentDataStruct] =
+    useState<CommentDataStruct>();
   const { data: profileData } = useGetProfiles();
   const profileId = profileData?.profiles.items[0].id;
   const { lensHub, freeCollectModule } = useContractAddresses();
   const { config, error } = usePrepareContractWrite({
     addressOrName: lensHub,
     contractInterface: LensHubABI.abi,
-    functionName: "post",
-    args: [postDataStruct],
+    functionName: "comment",
+    args: [commentDataStruct],
   });
   const { write } = useContractWrite(config);
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -64,7 +62,8 @@ const CreatePost = () => {
           if (
             reader.result &&
             typeof reader.result != "string" &&
-            profileData
+            selectedPostId &&
+            selectedPostProfileId
           ) {
             const storage = new Storage();
             setProgressMessage("Uploading track audio...");
@@ -73,6 +72,21 @@ const CreatePost = () => {
               file.type,
               Buffer.from(reader.result)
             );
+
+            setProgressMessage("Mixing audio...");
+            const mix = await mixTracks(
+              getGatewayURI(trackCid),
+              "https://ipfs.io/ipfs/bafybeih7f7uove336jj23d363nascdawfhhutzstc236thrnh3j5haztza"
+            );
+
+            setProgressMessage("Uploading mix audio...");
+            const mixBuffer = await mix.blob.arrayBuffer();
+            const mixCid = await storage.uploadTrack(
+              "my-file",
+              file.type,
+              Buffer.from(mixBuffer)
+            );
+
             setProgressMessage("Generating token metadata...");
             const metadata = postMetadata({
               name,
@@ -83,23 +97,30 @@ const CreatePost = () => {
                   type: file.type,
                   altTag: "Multitrack track",
                 },
+                {
+                  item: getGatewayURI(mixCid),
+                  type: file.type,
+                  altTag: "Multitrack mix",
+                },
               ],
             });
 
             setProgressMessage("Uploading token metadata...");
             const postCid = await storage.uploadMetadata(metadata);
 
-            const postData: PostDataStruct = {
-              profileId: profileData.profiles.items[0].id,
+            const commentData: CommentDataStruct = {
+              profileId: profileId,
               contentURI: getGatewayURI(postCid),
+              profileIdPointed: selectedPostProfileId,
+              pubIdPointed: selectedPostId,
               collectModule: freeCollectModule,
               collectModuleInitData: defaultAbiCoder.encode(["bool"], [true]),
               referenceModule: ethers.constants.AddressZero,
               referenceModuleInitData: [],
+              referenceModuleData: [],
             };
-            setPostDataStruct(postData);
+            setCommentDataStruct(commentData);
             setProgressMessage("Creating Lens post...");
-            console.log(postDataStruct);
             write?.();
           }
         };
@@ -107,9 +128,19 @@ const CreatePost = () => {
       }
     },
   });
+
+  const onSelectPublication = (selectedPostId: string) => {
+    const [profileId, postId] = selectedPostId.split("-");
+    setSelectedPostId(postId);
+    setSelectedPostProfileId(profileId);
+  };
+
   return (
     <div>
-      {JSON.stringify(profileData?.profiles.items[0].id)}
+      <div>
+        <p>{selectedPostId}</p>
+        <p>{selectedPostProfileId}</p>
+      </div>
       <div className="flex flex-col bg-gray-300">
         <form
           className="flex flex-col p-16 m-auto"
@@ -149,9 +180,9 @@ const CreatePost = () => {
         </form>
       </div>
       <div>{progressMessage}</div>
-      <Publications profileId={profileId} />
+      <Publications profileId={profileId} onSelect={onSelectPublication} />
     </div>
   );
 };
 
-export default CreatePost;
+export default CreateComment;

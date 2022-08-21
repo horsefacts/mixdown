@@ -8,23 +8,18 @@ import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { publicProvider } from 'wagmi/providers/public';
 
+import { ApolloProvider, gql } from '@apollo/client';
 import {
     connectorsForWallets, midnightTheme, RainbowKitProvider, wallet
 } from '@rainbow-me/rainbowkit';
 
 import App from './App';
+import { apolloClient } from './gql/client';
 
 const { chains, provider } = configureChains(
-  [chain.hardhat, chain.polygon, chain.polygonMumbai],
+  [chain.polygonMumbai, chain.polygon],
   [
     publicProvider(),
-    jsonRpcProvider({
-      rpc: () => {
-        return {
-          http: "http://localhost:8545",
-        };
-      },
-    }),
     jsonRpcProvider({
       rpc: () => {
         return {
@@ -85,7 +80,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains} theme={midnightTheme()} coolMode>
-        <App />
+        <ApolloProvider client={apolloClient}>
+          <App />
+        </ApolloProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>
