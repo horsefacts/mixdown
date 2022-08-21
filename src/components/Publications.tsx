@@ -109,12 +109,22 @@ const Publication = ({ id, profile, metadata, onSelect }: PublicationProps) => {
       <div className="space-y-4">
         <div className="flex flex-row">
           <span className="inline-block mr-2 text-4xl">🎛</span>
-          <audio className="p-2 rounded" controls src={squashUrl}></audio>
+          <audio
+            className="p-2 rounded"
+            controls
+            preload="auto"
+            src={squashUrl}
+          ></audio>
         </div>
         {deltaUrl && (
           <div className="flex flex-row">
             <span className="inline-block mr-2 text-4xl">🎚</span>
-            <audio className="p-2 rounded" controls src={deltaUrl}></audio>
+            <audio
+              className="p-2 rounded"
+              controls
+              preload="auto"
+              src={deltaUrl}
+            ></audio>
           </div>
         )}
         <div className="flex flex-row">
