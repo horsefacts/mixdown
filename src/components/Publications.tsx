@@ -36,16 +36,23 @@ interface Metadata {
   media: Media[];
 }
 
+interface Profile {
+  id: string;
+  handle: string;
+}
+
 interface Publication {
   __typename: "Post" | "Comment";
   commentOn: Publication;
   id: string;
   metadata: Metadata;
+  profile: Profile;
 }
 
 interface PublicationProps {
   onSelect: onSelectFunc;
   id: string;
+  profile: Profile;
   metadata: Metadata;
 }
 
@@ -66,6 +73,7 @@ const PublicationNode = ({
         <Publication
           metadata={root.metadata}
           id={root.id}
+          profile={root.profile}
           onSelect={onSelect}
         />
       </div>
@@ -85,7 +93,7 @@ const PublicationNode = ({
   );
 };
 
-const Publication = ({ id, metadata, onSelect }: PublicationProps) => {
+const Publication = ({ id, profile, metadata, onSelect }: PublicationProps) => {
   const media = metadata.media;
   const squashUrl = media[0].original.url;
   const deltaUrl = media.length > 1 ? media[1].original.url : null;
@@ -109,7 +117,12 @@ const Publication = ({ id, metadata, onSelect }: PublicationProps) => {
             <audio className="p-2 rounded" controls src={deltaUrl}></audio>
           </div>
         )}
-        <Collect publicationId={id} />
+        <div className="flex flex-row">
+          <Collect publicationId={id}/>
+          <div className="text-right flex-grow">
+            @{profile.handle}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -164,6 +177,7 @@ const Publications = ({ profileId, onSelect }: PublicationsProps) => {
         return idA.sub(idB);
       });
 
+    console.log("Posts", posts);
     const roots = posts.map((pub: Publication) => {
       return {
         root: pub,
